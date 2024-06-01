@@ -11,7 +11,8 @@ type DataStore interface {
 	GetPosts() []*types.Post
 	GetPostByID(id string) (*types.Post, error)
 	GetCommentByID(id string) (*types.Comment, error)
-	GetComments(postID string, paginationSize int) ([]*types.Comment, error)
+	GetComments(postID string) ([]*types.Comment, error)
+	GetReplies(commentID string) ([]*types.Comment, error)
 }
 
 var DataBase DataStore

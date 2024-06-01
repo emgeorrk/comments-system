@@ -4,7 +4,7 @@ type Post {
     title: String!
     content: String!
     createdAt: String!
-    comments: [Comment!]!
+    comments: [ID!]!
 }
 
 # The Comment type represents a comment on a post
@@ -14,7 +14,7 @@ type Comment {
     parentCommentId: ID
     content: String!
     createdAt: String!
-    replies: [Comment!]!
+    replies: [ID!]!
 }
 
 # Queries for fetching data

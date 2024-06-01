@@ -8,7 +8,7 @@ type Post struct {
 	Title     string
 	Content   string
 	CreatedAt time.Time
-	Comments  []*Comment
+	Comments  []string
 }
 
 // Comment структура для хранения комментариев
@@ -18,5 +18,5 @@ type Comment struct {
 	ParentCommentID string
 	Content         string
 	CreatedAt       time.Time
-	Replies         []*Comment
+	Replies         []string
 }

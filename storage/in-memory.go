@@ -27,7 +27,7 @@ func (store *InMemoryStore) AddPost(title, content string) *types.Post {
 		Title:     title,
 		Content:   content,
 		CreatedAt: time.Now(),
-		Comments:  []*types.Comment{},
+		Comments:  []string{},
 	}
 	store.Posts[post.ID] = post
 	return post
@@ -41,7 +41,7 @@ func (store *InMemoryStore) AddComment(postID, parentCommentID string, content s
 		ParentCommentID: parentCommentID,
 		Content:         content,
 		CreatedAt:       time.Now(),
-		Replies:         []*types.Comment{},
+		Replies:         []string{},
 	}
 	
 	store.Comments[comment.ID] = comment
@@ -49,14 +49,14 @@ func (store *InMemoryStore) AddComment(postID, parentCommentID string, content s
 	if parentCommentID == "" {
 		// Добавление комментария к посту
 		if post, ok := store.Posts[postID]; ok {
-			post.Comments = append(post.Comments, comment)
+			post.Comments = append(post.Comments, comment.ID)
 		} else {
 			return nil, errors.New("post not found")
 		}
 	} else {
 		// Добавление вложенного комментария
 		if parentComment, ok := store.Comments[parentCommentID]; ok {
-			parentComment.Replies = append(parentComment.Replies, comment)
+			parentComment.Replies = append(parentComment.Replies, comment.ID)
 		} else {
 			return nil, errors.New("parent comment not found")
 		}
@@ -80,11 +80,43 @@ func (store *InMemoryStore) GetCommentByID(id string) (*types.Comment, error) {
 }
 
 // GetComments получает комментарии к посту
-func (store *InMemoryStore) GetComments(postID string, paginationSize int) ([]*types.Comment, error) {
-	if post, ok := store.Posts[postID]; ok {
-		return post.Comments, nil
+func (store *InMemoryStore) GetComments(postID string) ([]*types.Comment, error) {
+	post, err := store.GetPostByID(postID)
+	if err != nil {
+		return nil, err
 	}
-	return nil, errors.New("post not found")
+	
+	comments := make([]*types.Comment, 0)
+	for _, commentID := range post.Comments {
+		comment, err := store.GetCommentByID(commentID)
+		if err != nil {
+			return nil, err
+		}
+		
+		comments = append(comments, comment)
+	}
+	
+	return comments, nil
+}
+
+// GetReplies возвращает ответы на комментарий
+func (store *InMemoryStore) GetReplies(commentID string) ([]*types.Comment, error) {
+	comment, err := store.GetCommentByID(commentID)
+	if err != nil {
+		return nil, err
+	}
+	
+	replies := make([]*types.Comment, 0)
+	for _, replyID := range comment.Replies {
+		reply, err := store.GetCommentByID(replyID)
+		if err != nil {
+			return nil, err
+		}
+		
+		replies = append(replies, reply)
+	}
+	
+	return replies, nil
 }
 
 // GetPosts возвращает все существующие посты

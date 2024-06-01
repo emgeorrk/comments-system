@@ -6,33 +6,29 @@ import (
 )
 
 // CommentType определяет тип комментариев для GraphQL
-var CommentType graphql.Type
-
-func init() {
-	CommentType = graphql.NewObject(graphql.ObjectConfig{
-		Name: "Comment",
-		Fields: graphql.Fields{
-			"id": &graphql.Field{
-				Type: graphql.NewNonNull(graphql.ID),
-			},
-			"postId": &graphql.Field{
-				Type: graphql.NewNonNull(graphql.ID),
-			},
-			"parentCommentId": &graphql.Field{
-				Type: graphql.ID,
-			},
-			"content": &graphql.Field{
-				Type: graphql.NewNonNull(graphql.String),
-			},
-			"createdAt": &graphql.Field{
-				Type: graphql.NewNonNull(graphql.String),
-			},
-			"replies": &graphql.Field{
-				Type: graphql.NewList(CommentType),
-			},
+var CommentType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "Comment",
+	Fields: graphql.Fields{
+		"id": &graphql.Field{
+			Type: graphql.NewNonNull(graphql.ID),
 		},
-	})
-}
+		"postId": &graphql.Field{
+			Type: graphql.NewNonNull(graphql.ID),
+		},
+		"parentCommentId": &graphql.Field{
+			Type: graphql.ID,
+		},
+		"content": &graphql.Field{
+			Type: graphql.NewNonNull(graphql.String),
+		},
+		"createdAt": &graphql.Field{
+			Type: graphql.NewNonNull(graphql.String),
+		},
+		"replies": &graphql.Field{
+			Type: graphql.NewNonNull(graphql.NewList(graphql.ID)),
+		},
+	},
+})
 
 // PostType определяет тип постов для GraphQL
 var PostType = graphql.NewObject(graphql.ObjectConfig{
@@ -52,7 +48,7 @@ var PostType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.NewNonNull(graphql.String),
 		},
 		"comments": &graphql.Field{
-			Type: graphql.NewList(CommentType),
+			Type: graphql.NewNonNull(graphql.NewList(graphql.ID)),
 		},
 	},
 })
@@ -113,8 +109,7 @@ var QueryType = graphql.NewObject(graphql.ObjectConfig{
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 				postId, _ := params.Args["postId"].(string)
-				paginationSize, _ := params.Args["paginationSize"].(int)
-				comments, err := storage.DataBase.GetComments(postId, paginationSize)
+				comments, err := storage.DataBase.GetComments(postId)
 				if err != nil {
 					return nil, err
 				}
@@ -149,10 +144,10 @@ var MutationType = graphql.NewObject(graphql.ObjectConfig{
 			Type: CommentType,
 			Args: graphql.FieldConfigArgument{
 				"postId": &graphql.ArgumentConfig{
-					Type: graphql.NewNonNull(graphql.Int),
+					Type: graphql.NewNonNull(graphql.ID),
 				},
 				"parentCommentId": &graphql.ArgumentConfig{
-					Type: graphql.Int,
+					Type: graphql.ID,
 				},
 				"content": &graphql.ArgumentConfig{
 					Type: graphql.NewNonNull(graphql.String),

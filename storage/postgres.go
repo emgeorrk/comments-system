@@ -38,6 +38,10 @@ func (store *PostgresDataStore) GetCommentByID(id string) (*types.Comment, error
 	return nil, nil
 }
 
-func (store *PostgresDataStore) GetComments(postID string, paginationSize int) ([]*types.Comment, error) {
+func (store *PostgresDataStore) GetComments(postID string) ([]*types.Comment, error) {
+	return nil, nil
+}
+
+func (store *PostgresDataStore) GetReplies(commentID string) ([]*types.Comment, error) {
 	return nil, nil
 }
