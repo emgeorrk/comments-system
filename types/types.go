@@ -4,11 +4,12 @@ import "time"
 
 // Post структура для хранения постов
 type Post struct {
-	ID        string
-	Title     string
-	Content   string
-	CreatedAt time.Time
-	Comments  []string
+	ID            string
+	Title         string
+	Content       string
+	CreatedAt     time.Time
+	Comments      []string
+	AllowComments bool
 }
 
 // Comment структура для хранения комментариев

@@ -50,6 +50,9 @@ var PostType = graphql.NewObject(graphql.ObjectConfig{
 		"comments": &graphql.Field{
 			Type: graphql.NewNonNull(graphql.NewList(graphql.ID)),
 		},
+		"allowComments": &graphql.Field{
+			Type: graphql.NewNonNull(graphql.Boolean),
+		},
 	},
 })
 
@@ -139,7 +142,8 @@ var MutationType = graphql.NewObject(graphql.ObjectConfig{
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 				title, _ := params.Args["title"].(string)
 				content, _ := params.Args["content"].(string)
-				newPost, err := storage.DataBase.AddPost(title, content)
+				allowComments, _ := params.Args["allowComments"].(bool)
+				newPost, err := storage.DataBase.AddPost(title, content, allowComments)
 				if err != nil {
 					return nil, err
 				}

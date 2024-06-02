@@ -5,6 +5,7 @@ type Post {
     content: String!
     createdAt: String!
     comments: [ID!]!
+    allowComments: Boolean!
 }
 
 # The Comment type represents a comment on a post

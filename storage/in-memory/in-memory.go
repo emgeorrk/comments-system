@@ -22,7 +22,7 @@ func NewInMemoryStore() *DataStoreInMemory {
 	}
 }
 
-func (store *DataStoreInMemory) AddPost(title, content string) (*types.Post, error) {
+func (store *DataStoreInMemory) AddPost(title, content string, allowComments bool) (*types.Post, error) {
 	if title == "" {
 		return nil, errors.New("title is empty")
 	}
@@ -31,22 +31,27 @@ func (store *DataStoreInMemory) AddPost(title, content string) (*types.Post, err
 	}
 
 	post := &types.Post{
-		ID:        storage.GenerateNewPostUUID(),
-		Title:     title,
-		Content:   content,
-		CreatedAt: time.Now(),
-		Comments:  []string{},
+		ID:            storage.GenerateNewPostUUID(),
+		Title:         title,
+		Content:       content,
+		CreatedAt:     time.Now(),
+		Comments:      []string{},
+		AllowComments: allowComments,
 	}
 	store.Posts[post.ID] = post
 	return post, nil
 }
 
 func (store *DataStoreInMemory) AddComment(postID, parentCommentID string, content string) (*types.Comment, error) {
-	if content == "" {
+	switch {
+	case postID == "":
+		return nil, errors.New("postID is empty")
+	case content == "":
 		return nil, errors.New("content is empty")
-	}
-	if len(content) > storage.MaxCommentLength {
+	case len(content) > storage.MaxCommentLength:
 		return nil, errors.New(fmt.Sprintf("content is too long (maximum %d chars)", storage.MaxCommentLength))
+	case !store.Posts[postID].AllowComments:
+		return nil, errors.New("comments are not allowed for this post")
 	}
 
 	comment := &types.Comment{

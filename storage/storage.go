@@ -10,7 +10,7 @@ const (
 )
 
 type DataStore interface {
-	AddPost(title, content string) (*types.Post, error)
+	AddPost(title, content string, allowComments bool) (*types.Post, error)
 	AddComment(postID, parentCommentID, content string) (*types.Comment, error)
 	GetPosts() ([]*types.Post, error)
 	GetPostByID(id string) (*types.Post, error)
