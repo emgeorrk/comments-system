@@ -1,4 +1,4 @@
-package imMemory_test
+package inMemory_test
 
 import (
 	"graphql-comments/storage"

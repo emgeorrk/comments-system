@@ -1,7 +1,8 @@
-package imMemory
+package inMemory
 
 import (
 	"errors"
+	"fmt"
 	"graphql-comments/storage"
 	"graphql-comments/types"
 	"time"
@@ -43,6 +44,9 @@ func (store *InMemoryStore) AddPost(title, content string) (*types.Post, error) 
 func (store *InMemoryStore) AddComment(postID, parentCommentID string, content string) (*types.Comment, error) {
 	if content == "" {
 		return nil, errors.New("content is empty")
+	}
+	if len(content) > storage.MaxCommentLength {
+		return nil, errors.New(fmt.Sprintf("content is too long (maximum %d chars)", storage.MaxCommentLength))
 	}
 
 	comment := &types.Comment{
