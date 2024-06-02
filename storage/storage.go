@@ -5,6 +5,10 @@ import (
 	"graphql-comments/types"
 )
 
+const (
+	MaxCommentLength = 2000
+)
+
 type DataStore interface {
 	AddPost(title, content string) (*types.Post, error)
 	AddComment(postID, parentCommentID, content string) (*types.Comment, error)

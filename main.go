@@ -6,7 +6,7 @@ import (
 	"github.com/graphql-go/handler"
 	graphqlschema "graphql-comments/graphql"
 	"graphql-comments/storage"
-	imMemory "graphql-comments/storage/in-memory"
+	"graphql-comments/storage/in-memory"
 	"graphql-comments/storage/postgres"
 	"net/http"
 )
@@ -14,7 +14,7 @@ import (
 func main() {
 	var flag int = 1
 	if flag == 1 {
-		storage.DataBase = imMemory.NewInMemoryStore()
+		storage.DataBase = inMemory.NewInMemoryStore()
 	} else {
 		storage.DataBase, _ = postgres.NewPostgresDataStore("postgres://postgres:password@localhost:5432/graphql_comments?sslmode=disable")
 	}

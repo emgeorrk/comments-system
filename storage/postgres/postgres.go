@@ -3,6 +3,7 @@ package postgres
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	_ "github.com/lib/pq"
 	"graphql-comments/storage"
 	"graphql-comments/types"
@@ -10,7 +11,7 @@ import (
 )
 
 type DataStorePostgres struct {
-	db *sql.DB
+	DB *sql.DB
 }
 
 func NewPostgresDataStore(dbURL string) (*DataStorePostgres, error) {
@@ -18,10 +19,17 @@ func NewPostgresDataStore(dbURL string) (*DataStorePostgres, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &DataStorePostgres{db: db}, nil
+	return &DataStorePostgres{DB: db}, nil
 }
 
 func (store *DataStorePostgres) AddPost(title, content string) (*types.Post, error) {
+	if title == "" {
+		return nil, errors.New("title is empty")
+	}
+	if content == "" {
+		return nil, errors.New("content is empty")
+	}
+
 	post := &types.Post{
 		ID:        storage.GenerateNewPostUUID(),
 		Title:     title,
@@ -30,7 +38,7 @@ func (store *DataStorePostgres) AddPost(title, content string) (*types.Post, err
 		Comments:  []string{},
 	}
 
-	_, err := store.db.Exec("INSERT INTO posts (id, title, content, created_at) VALUES ($1, $2, $3, $4)",
+	_, err := store.DB.Exec("INSERT INTO posts (id, title, content, created_at) VALUES ($1, $2, $3, $4)",
 		post.ID, post.Title, post.Content, post.CreatedAt)
 	if err != nil {
 		return nil, err
@@ -40,11 +48,51 @@ func (store *DataStorePostgres) AddPost(title, content string) (*types.Post, err
 }
 
 func (store *DataStorePostgres) AddComment(postID, parentCommentID, content string) (*types.Comment, error) {
-	return nil, nil
+	if content == "" {
+		return nil, errors.New("content is empty")
+	}
+	if len(content) > storage.MaxCommentLength {
+		return nil, errors.New(fmt.Sprintf("content is too long (maximum %d chars)", storage.MaxCommentLength))
+	}
+
+	comment := &types.Comment{
+		ID:              storage.GenerateNewCommentUUID(),
+		PostID:          postID,
+		ParentCommentID: parentCommentID,
+		Content:         content,
+		CreatedAt:       time.Now(),
+		Replies:         []string{},
+	}
+
+	_, err := store.DB.Exec(
+		"INSERT INTO comments (id, post_id, parent_comment_id, content, created_at) VALUES ($1, $2, $3, $4, $5)",
+		comment.ID, comment.PostID, comment.ParentCommentID, comment.Content, comment.CreatedAt,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	if parentCommentID == "" {
+		// Добавление комментария к посту
+		_, err = store.DB.Exec("UPDATE posts SET comments = array_append(comments, $1) WHERE id = $2", comment.ID, postID)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		// Добавление вложенного комментария
+		_, err = store.DB.Exec(
+			"UPDATE comments SET replies = array_append(replies, $1) WHERE id = $2", comment.ID, parentCommentID)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return comment, nil
+
 }
 
 func (store *DataStorePostgres) GetPosts() ([]*types.Post, error) {
-	rows, err := store.db.Query("SELECT id, title, content, created_at FROM posts")
+	rows, err := store.DB.Query("SELECT id, title, content, created_at FROM posts")
 	if err != nil {
 		return nil, err
 	}
@@ -67,7 +115,7 @@ func (store *DataStorePostgres) GetPosts() ([]*types.Post, error) {
 
 func (store *DataStorePostgres) GetPostByID(id string) (*types.Post, error) {
 	post := &types.Post{}
-	err := store.db.QueryRow("SELECT id, title, content, created_at FROM posts WHERE id = $1", id).Scan(
+	err := store.DB.QueryRow("SELECT id, title, content, created_at FROM posts WHERE id = $1", id).Scan(
 		&post.ID,
 		&post.Title,
 		&post.Content,
@@ -83,7 +131,7 @@ func (store *DataStorePostgres) GetPostByID(id string) (*types.Post, error) {
 }
 
 func (store *DataStorePostgres) GetComments(postID string) ([]*types.Comment, error) {
-	rows, err := store.db.Query("SELECT id, post_id, parent_comment_id, content, created_at FROM comments WHERE post_id = $1", postID)
+	rows, err := store.DB.Query("SELECT id, post_id, parent_comment_id, content, created_at FROM comments WHERE post_id = $1", postID)
 	if err != nil {
 		return nil, err
 	}
@@ -106,7 +154,7 @@ func (store *DataStorePostgres) GetComments(postID string) ([]*types.Comment, er
 
 func (store *DataStorePostgres) GetCommentByID(id string) (*types.Comment, error) {
 	comment := &types.Comment{}
-	err := store.db.QueryRow(
+	err := store.DB.QueryRow(
 		"SELECT id, post_id, parent_comment_id, content, created_at FROM comments WHERE id = $1", id).Scan(
 		&comment.ID,
 		&comment.PostID,
@@ -124,5 +172,23 @@ func (store *DataStorePostgres) GetCommentByID(id string) (*types.Comment, error
 }
 
 func (store *DataStorePostgres) GetReplies(commentID string) ([]*types.Comment, error) {
-	return nil, nil
+	rows, err := store.DB.Query("SELECT id, post_id, parent_comment_id, content, created_at FROM comments WHERE parent_comment_id = $1", commentID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	comments := make([]*types.Comment, 0)
+	for rows.Next() {
+		comment := &types.Comment{}
+		err := rows.Scan(&comment.ID, &comment.PostID, &comment.ParentCommentID, &comment.Content, &comment.CreatedAt)
+		if err != nil {
+			return nil, err
+		}
+		comments = append(comments, comment)
+	}
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+	return comments, nil
 }
