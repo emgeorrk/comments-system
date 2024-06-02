@@ -6,7 +6,9 @@ import (
 )
 
 const (
-	MaxCommentLength = 2000
+	MaxCommentLength     = 2000
+	MaxPostTitleLength   = 100
+	MaxPostContentLength = 10000
 )
 
 type DataStore interface {
@@ -14,8 +16,8 @@ type DataStore interface {
 	AddComment(postID, parentCommentID, content string) (*types.Comment, error)
 	GetPosts() ([]*types.Post, error)
 	GetPostByID(id string) (*types.Post, error)
-	GetCommentByID(id string) (*types.Comment, error)
 	GetComments(postID string) ([]*types.Comment, error)
+	GetCommentByID(id string) (*types.Comment, error)
 	GetReplies(commentID string) ([]*types.Comment, error)
 }
 

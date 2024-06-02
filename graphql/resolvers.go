@@ -17,6 +17,10 @@ func addPostResolver(params graphql.ResolveParams) (interface{}, error) {
 		return nil, errors.New("title is empty")
 	case content == "":
 		return nil, errors.New("content is empty")
+	case len(title) > storage.MaxPostTitleLength:
+		return nil, errors.New(fmt.Sprintf("title is too long (maximum %d chars)", storage.MaxPostTitleLength))
+	case len(content) > storage.MaxPostContentLength:
+		return nil, errors.New(fmt.Sprintf("content is too long (maximum %d chars)", storage.MaxPostContentLength))
 	}
 
 	if !ok {
