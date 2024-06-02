@@ -4,25 +4,51 @@ import (
 	"fmt"
 	"github.com/graphql-go/graphql"
 	"github.com/graphql-go/handler"
-	graphqlschema "graphql-comments/graphql"
+	"github.com/joho/godotenv"
+	"graphql-comments/graphql"
 	"graphql-comments/storage"
 	"graphql-comments/storage/in-memory"
 	"graphql-comments/storage/postgres"
+	"log"
 	"net/http"
 )
 
 func main() {
-	var flag int = 1
-	if flag == 1 {
+	envFile, _ := godotenv.Read(".env")
+	flag := envFile["STORAGE_TYPE"]
+
+	switch flag {
+	case "in-memory":
+		log.Println("Using in-memory storage")
 		storage.DataBase = inMemory.NewInMemoryStore()
-	} else {
-		storage.DataBase, _ = postgres.NewPostgresDataStore("postgres://postgres:password@localhost:5432/graphql_comments?sslmode=disable")
+	case "postgres":
+		log.Println("Using PostgreSQL storage")
+
+		host := envFile["POSTGRES_HOST"]
+		port := envFile["POSTGRES_PORT"]
+		user := envFile["POSTGRES_USER"]
+		password := envFile["POSTGRES_PASSWORD"]
+		dbname := envFile["POSTGRES_DATABASE"]
+
+		psqlInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+			host, port, user, password, dbname)
+
+		var err error
+		storage.DataBase, err = postgres.NewPostgresDataStore(psqlInfo)
+		if err != nil {
+			log.Println("Error connecting to PostgreSQL: ", err)
+			return
+		}
+
+		log.Println("Successfully connected to PostgreSQL!")
+	default:
+		log.Fatalf("Unknown storage type: \"%s\"\n", flag)
 	}
 
 	var schema, _ = graphql.NewSchema(graphql.SchemaConfig{
-		Query:    graphqlschema.QueryType,
-		Mutation: graphqlschema.MutationType,
-		Types:    []graphql.Type{graphqlschema.PostType, graphqlschema.CommentType},
+		Query:    gql.QueryType,
+		Mutation: gql.MutationType,
+		Types:    []graphql.Type{gql.PostType, gql.CommentType},
 	})
 
 	// Создаем GraphQL обработчик
@@ -36,6 +62,6 @@ func main() {
 	http.Handle("/graphql", graphqlHandler)
 
 	// Запускаем сервер на порту 8080
-	fmt.Println("Server is running on port 8080")
+	fmt.Println("Server is running at http://localhost:8080/graphql")
 	http.ListenAndServe(":8080", nil)
 }
