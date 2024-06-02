@@ -22,6 +22,13 @@ func NewInMemoryStore() *InMemoryStore {
 }
 
 func (store *InMemoryStore) AddPost(title, content string) (*types.Post, error) {
+	if title == "" {
+		return nil, errors.New("title is empty")
+	}
+	if content == "" {
+		return nil, errors.New("content is empty")
+	}
+
 	post := &types.Post{
 		ID:        storage.GenerateNewPostUUID(),
 		Title:     title,
@@ -34,6 +41,10 @@ func (store *InMemoryStore) AddPost(title, content string) (*types.Post, error) 
 }
 
 func (store *InMemoryStore) AddComment(postID, parentCommentID string, content string) (*types.Comment, error) {
+	if content == "" {
+		return nil, errors.New("content is empty")
+	}
+
 	comment := &types.Comment{
 		ID:              storage.GenerateNewCommentUUID(),
 		PostID:          postID,
@@ -42,9 +53,9 @@ func (store *InMemoryStore) AddComment(postID, parentCommentID string, content s
 		CreatedAt:       time.Now(),
 		Replies:         []string{},
 	}
-	
+
 	store.Comments[comment.ID] = comment
-	
+
 	if parentCommentID == "" {
 		// Добавление комментария к посту
 		if post, ok := store.Posts[postID]; ok {
@@ -65,11 +76,11 @@ func (store *InMemoryStore) AddComment(postID, parentCommentID string, content s
 
 func (store *InMemoryStore) GetPosts() ([]*types.Post, error) {
 	posts := make([]*types.Post, 0)
-	
+
 	for _, post := range store.Posts {
 		posts = append(posts, post)
 	}
-	
+
 	return posts, nil
 }
 
@@ -85,17 +96,17 @@ func (store *InMemoryStore) GetComments(postID string) ([]*types.Comment, error)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	comments := make([]*types.Comment, 0)
 	for _, commentID := range post.Comments {
 		comment, err := store.GetCommentByID(commentID)
 		if err != nil {
 			return nil, err
 		}
-		
+
 		comments = append(comments, comment)
 	}
-	
+
 	return comments, nil
 }
 
@@ -111,16 +122,16 @@ func (store *InMemoryStore) GetReplies(commentID string) ([]*types.Comment, erro
 	if err != nil {
 		return nil, err
 	}
-	
+
 	replies := make([]*types.Comment, 0)
 	for _, replyID := range comment.Replies {
 		reply, err := store.GetCommentByID(replyID)
 		if err != nil {
 			return nil, err
 		}
-		
+
 		replies = append(replies, reply)
 	}
-	
+
 	return replies, nil
 }
