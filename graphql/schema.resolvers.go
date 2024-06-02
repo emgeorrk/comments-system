@@ -61,7 +61,10 @@ var QueryType = graphql.NewObject(graphql.ObjectConfig{
 			Name: "getPosts",
 			Type: graphql.NewList(PostType),
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-				posts := storage.DataBase.GetPosts()
+				posts, err := storage.DataBase.GetPosts()
+				if err != nil {
+					return nil, err
+				}
 				return posts, nil
 			},
 		},
@@ -136,7 +139,10 @@ var MutationType = graphql.NewObject(graphql.ObjectConfig{
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 				title, _ := params.Args["title"].(string)
 				content, _ := params.Args["content"].(string)
-				newPost := storage.DataBase.AddPost(title, content)
+				newPost, err := storage.DataBase.AddPost(title, content)
+				if err != nil {
+					return nil, err
+				}
 				return newPost, nil
 			},
 		},

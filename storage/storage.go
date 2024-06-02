@@ -6,9 +6,9 @@ import (
 )
 
 type DataStore interface {
-	AddPost(title, content string) *types.Post
+	AddPost(title, content string) (*types.Post, error)
 	AddComment(postID, parentCommentID, content string) (*types.Comment, error)
-	GetPosts() []*types.Post
+	GetPosts() ([]*types.Post, error)
 	GetPostByID(id string) (*types.Post, error)
 	GetCommentByID(id string) (*types.Comment, error)
 	GetComments(postID string) ([]*types.Comment, error)
