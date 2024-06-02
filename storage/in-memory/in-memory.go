@@ -8,21 +8,21 @@ import (
 	"time"
 )
 
-// InMemoryStore структура для хранения постов и комментариев в памяти
-type InMemoryStore struct {
+// DataStoreInMemory структура для хранения постов и комментариев в памяти
+type DataStoreInMemory struct {
 	Posts    map[string]*types.Post
 	Comments map[string]*types.Comment
 }
 
 // NewInMemoryStore создает новый in-memory store
-func NewInMemoryStore() *InMemoryStore {
-	return &InMemoryStore{
+func NewInMemoryStore() *DataStoreInMemory {
+	return &DataStoreInMemory{
 		Posts:    make(map[string]*types.Post),
 		Comments: make(map[string]*types.Comment),
 	}
 }
 
-func (store *InMemoryStore) AddPost(title, content string) (*types.Post, error) {
+func (store *DataStoreInMemory) AddPost(title, content string) (*types.Post, error) {
 	if title == "" {
 		return nil, errors.New("title is empty")
 	}
@@ -41,7 +41,7 @@ func (store *InMemoryStore) AddPost(title, content string) (*types.Post, error) 
 	return post, nil
 }
 
-func (store *InMemoryStore) AddComment(postID, parentCommentID string, content string) (*types.Comment, error) {
+func (store *DataStoreInMemory) AddComment(postID, parentCommentID string, content string) (*types.Comment, error) {
 	if content == "" {
 		return nil, errors.New("content is empty")
 	}
@@ -78,7 +78,7 @@ func (store *InMemoryStore) AddComment(postID, parentCommentID string, content s
 	return comment, nil
 }
 
-func (store *InMemoryStore) GetPosts() ([]*types.Post, error) {
+func (store *DataStoreInMemory) GetPosts() ([]*types.Post, error) {
 	posts := make([]*types.Post, 0)
 
 	for _, post := range store.Posts {
@@ -88,14 +88,14 @@ func (store *InMemoryStore) GetPosts() ([]*types.Post, error) {
 	return posts, nil
 }
 
-func (store *InMemoryStore) GetPostByID(id string) (*types.Post, error) {
+func (store *DataStoreInMemory) GetPostByID(id string) (*types.Post, error) {
 	if post, ok := store.Posts[id]; ok {
 		return post, nil
 	}
 	return nil, errors.New("post not found")
 }
 
-func (store *InMemoryStore) GetComments(postID string) ([]*types.Comment, error) {
+func (store *DataStoreInMemory) GetComments(postID string) ([]*types.Comment, error) {
 	post, err := store.GetPostByID(postID)
 	if err != nil {
 		return nil, err
@@ -114,14 +114,14 @@ func (store *InMemoryStore) GetComments(postID string) ([]*types.Comment, error)
 	return comments, nil
 }
 
-func (store *InMemoryStore) GetCommentByID(id string) (*types.Comment, error) {
+func (store *DataStoreInMemory) GetCommentByID(id string) (*types.Comment, error) {
 	if comment, ok := store.Comments[id]; ok {
 		return comment, nil
 	}
 	return nil, errors.New("comment not found")
 }
 
-func (store *InMemoryStore) GetReplies(commentID string) ([]*types.Comment, error) {
+func (store *DataStoreInMemory) GetReplies(commentID string) ([]*types.Comment, error) {
 	comment, err := store.GetCommentByID(commentID)
 	if err != nil {
 		return nil, err
