@@ -171,11 +171,12 @@ func (store *DataStorePostgres) GetComments(postID string) ([]*types.Comment, er
 
 func (store *DataStorePostgres) GetCommentByID(id string) (*types.Comment, error) {
 	comment := &types.Comment{}
+	var tmp sql.NullString
 	err := store.DB.QueryRow(
 		"SELECT id, post_id, parent_comment_id, content, created_at FROM comments WHERE id = $1", id).Scan(
 		&comment.ID,
 		&comment.PostID,
-		&comment.ParentCommentID,
+		&tmp,
 		&comment.Content,
 		&comment.CreatedAt,
 	)
@@ -184,6 +185,10 @@ func (store *DataStorePostgres) GetCommentByID(id string) (*types.Comment, error
 			return nil, errors.New("comment not found")
 		}
 		return nil, err
+	}
+
+	if tmp.Valid {
+		comment.ParentCommentID = tmp.String
 	}
 
 	repliesRows, err := store.DB.Query("SELECT id FROM comments WHERE parent_comment_id = $1", comment.ID)
