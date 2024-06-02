@@ -2,7 +2,6 @@ package inMemory
 
 import (
 	"errors"
-	"fmt"
 	"graphql-comments/storage"
 	"graphql-comments/types"
 	"time"
@@ -23,13 +22,6 @@ func NewInMemoryStore() *DataStoreInMemory {
 }
 
 func (store *DataStoreInMemory) AddPost(title, content string, allowComments bool) (*types.Post, error) {
-	if title == "" {
-		return nil, errors.New("title is empty")
-	}
-	if content == "" {
-		return nil, errors.New("content is empty")
-	}
-
 	post := &types.Post{
 		ID:            storage.GenerateNewPostUUID(),
 		Title:         title,
@@ -43,14 +35,7 @@ func (store *DataStoreInMemory) AddPost(title, content string, allowComments boo
 }
 
 func (store *DataStoreInMemory) AddComment(postID, parentCommentID string, content string) (*types.Comment, error) {
-	switch {
-	case postID == "":
-		return nil, errors.New("postID is empty")
-	case content == "":
-		return nil, errors.New("content is empty")
-	case len(content) > storage.MaxCommentLength:
-		return nil, errors.New(fmt.Sprintf("content is too long (maximum %d chars)", storage.MaxCommentLength))
-	case !store.Posts[postID].AllowComments:
+	if !store.Posts[postID].AllowComments {
 		return nil, errors.New("comments are not allowed for this post")
 	}
 

@@ -88,3 +88,12 @@ func getCommentByIDResolver(params graphql.ResolveParams) (interface{}, error) {
 	}
 	return comment, nil
 }
+
+func getRepliesResolver(params graphql.ResolveParams) (interface{}, error) {
+	commentID, _ := params.Args["commentID"].(string)
+	replies, err := storage.DataBase.GetReplies(commentID)
+	if err != nil {
+		return nil, err
+	}
+	return replies, nil
+}
