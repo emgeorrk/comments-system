@@ -22,5 +22,8 @@ jobs:
       - name: Install dependencies
         run: go mod download
 
-      - name: Run tests
-        run: go test ./... -v
+      - name: Run tests for in-memory storage
+        run: go test ./tests/in-memory/in-memory_test.go -v
+        
+      - name: Run tests for postgresql storage
+        run: go test ./tests/postgres/postgres_test.go -v

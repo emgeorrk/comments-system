@@ -35,6 +35,11 @@ func (store *DataStoreInMemory) AddPost(title, content string, allowComments boo
 }
 
 func (store *DataStoreInMemory) AddComment(postID, parentCommentID string, content string) (*types.Comment, error) {
+	post, ok := store.Posts[postID]
+	if !ok {
+		return nil, errors.New("post not found")
+	}
+
 	if !store.Posts[postID].AllowComments {
 		return nil, errors.New("comments are not allowed for this post")
 	}
@@ -52,11 +57,7 @@ func (store *DataStoreInMemory) AddComment(postID, parentCommentID string, conte
 
 	if parentCommentID == "" {
 		// Добавление комментария к посту
-		if post, ok := store.Posts[postID]; ok {
-			post.Comments = append(post.Comments, comment.ID)
-		} else {
-			return nil, errors.New("post not found")
-		}
+		post.Comments = append(post.Comments, comment.ID)
 	} else {
 		// Добавление вложенного комментария
 		if parentComment, ok := store.Comments[parentCommentID]; ok {
@@ -112,6 +113,9 @@ func (store *DataStoreInMemory) GetCommentByID(id string) (*types.Comment, error
 }
 
 func (store *DataStoreInMemory) GetNumberOfCommentPages(postID string) (int, error) {
+	if _, ok := store.Posts[postID]; !ok {
+		return 0, errors.New("post not found")
+	}
 	return len(store.Posts[postID].Comments) / storage.CommentsPageSize, nil
 }
 
