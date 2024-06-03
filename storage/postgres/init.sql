@@ -1,5 +1,3 @@
-CREATE DATABASE graphql_comments;
-
 CREATE TABLE IF NOT EXISTS Posts (
     id VARCHAR(128) PRIMARY KEY,
     title VARCHAR(255) NOT NULL,

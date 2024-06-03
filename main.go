@@ -62,5 +62,8 @@ func main() {
 
 	// Запускаем сервер на порту 8080
 	log.Println("Server is running at http://localhost:8084/graphql")
-	http.ListenAndServe(":8084", nil)
+	err := http.ListenAndServe(":8084", nil)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
