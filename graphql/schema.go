@@ -105,7 +105,7 @@ var QueryType = graphql.NewObject(graphql.ObjectConfig{
 	},
 })
 
-// MutationType определяет мутации для GraphQL
+// MutationType определяет мутаций для GraphQL
 var MutationType = graphql.NewObject(graphql.ObjectConfig{
 	Name: "Mutation",
 	Fields: graphql.Fields{

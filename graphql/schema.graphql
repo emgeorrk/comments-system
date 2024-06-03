@@ -25,7 +25,7 @@ type Query {
     getPostById(id: ID!): Post
 
     # Fetch comments for a post, with optional pagination
-    getComments(postId: ID!, paginationSize: Int): [Comment!]!
+    getComments(postId: ID!, page: Int): [Comment!]!
 }
 
 # Mutations for modifying data
