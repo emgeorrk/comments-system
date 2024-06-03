@@ -9,8 +9,8 @@ type Post {
 
 type Comment {
     id: ID!
-    postId: ID!
-    parentCommentId: ID
+    postID: ID!
+    parentCommentID: ID
     content: String!
     createdAt: String!
     replies: [ID!]!
@@ -18,10 +18,10 @@ type Comment {
 
 type Query {
     getPosts: [Post!]!
-    getPostById(id: ID!): Post
-    getComments(postId: ID!, page: Int): [Comment!]!
+    getPostByID(id: ID!): Post
+    getComments(postID: ID!, page: Int): [Comment!]!
     getCommentByID(id: ID!): Comment
-    GetNumberOfCommentPages(postId: ID!): Int!
+    GetNumberOfCommentPages(postID: ID!): Int!
     GetReplies(commentId: ID!): [Comment!]!
 }
 

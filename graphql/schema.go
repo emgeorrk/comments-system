@@ -36,10 +36,10 @@ var CommentType = graphql.NewObject(graphql.ObjectConfig{
 		"id": &graphql.Field{
 			Type: graphql.NewNonNull(graphql.ID),
 		},
-		"postId": &graphql.Field{
+		"postID": &graphql.Field{
 			Type: graphql.NewNonNull(graphql.ID),
 		},
-		"parentCommentId": &graphql.Field{
+		"parentCommentID": &graphql.Field{
 			Type: graphql.ID,
 		},
 		"content": &graphql.Field{
@@ -75,7 +75,7 @@ var QueryType = graphql.NewObject(graphql.ObjectConfig{
 		"getComments": &graphql.Field{
 			Type: graphql.NewList(CommentType),
 			Args: graphql.FieldConfigArgument{
-				"postId": &graphql.ArgumentConfig{
+				"postID": &graphql.ArgumentConfig{
 					Type: graphql.NewNonNull(graphql.ID),
 				},
 				"paginationSize": &graphql.ArgumentConfig{
@@ -96,7 +96,7 @@ var QueryType = graphql.NewObject(graphql.ObjectConfig{
 		"getNumberOfCommentPages": &graphql.Field{
 			Type: graphql.NewNonNull(graphql.Int),
 			Args: graphql.FieldConfigArgument{
-				"postId": &graphql.ArgumentConfig{
+				"postID": &graphql.ArgumentConfig{
 					Type: graphql.NewNonNull(graphql.ID),
 				},
 			},

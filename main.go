@@ -54,8 +54,6 @@ func main() {
 	// Создаем GraphQL обработчик
 	graphqlHandler := handler.New(&handler.Config{
 		Schema:     &schema,
-		Pretty:     true,
-		GraphiQL:   true,
 		Playground: true,
 	})
 
@@ -63,6 +61,6 @@ func main() {
 	http.Handle("/graphql", graphqlHandler)
 
 	// Запускаем сервер на порту 8080
-	log.Println("Server is running at http://localhost:8080/graphql")
-	http.ListenAndServe(":8080", nil)
+	log.Println("Server is running at http://localhost:8084/graphql")
+	http.ListenAndServe(":8084", nil)
 }

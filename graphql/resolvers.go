@@ -34,8 +34,8 @@ func addPostResolver(params graphql.ResolveParams) (interface{}, error) {
 }
 
 func addCommentResolver(params graphql.ResolveParams) (interface{}, error) {
-	postID, _ := params.Args["postId"].(string)
-	parentCommentID, _ := params.Args["parentCommentId"].(string)
+	postID, _ := params.Args["postID"].(string)
+	parentCommentID, _ := params.Args["parentCommentID"].(string)
 	content, _ := params.Args["content"].(string)
 
 	switch {
@@ -72,13 +72,13 @@ func getPostByIDResolver(params graphql.ResolveParams) (interface{}, error) {
 }
 
 func getCommentsResolver(params graphql.ResolveParams) (interface{}, error) {
-	postId, _ := params.Args["postId"].(string)
+	postID, _ := params.Args["postID"].(string)
 	page, ok := params.Args["page"].(int)
 	if !ok {
 		page = 0
 	}
 
-	comments, err := storage.DataBase.GetComments(postId, page)
+	comments, err := storage.DataBase.GetComments(postID, page)
 	if err != nil {
 		return nil, err
 	}
