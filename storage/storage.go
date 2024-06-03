@@ -9,6 +9,7 @@ const (
 	MaxCommentLength     = 2000
 	MaxPostTitleLength   = 100
 	MaxPostContentLength = 10000
+	CommentsPageSize     = 10
 )
 
 type DataStore interface {
@@ -16,8 +17,9 @@ type DataStore interface {
 	AddComment(postID, parentCommentID, content string) (*types.Comment, error)
 	GetPosts() ([]*types.Post, error)
 	GetPostByID(id string) (*types.Post, error)
-	GetComments(postID string) ([]*types.Comment, error)
+	GetComments(postID string, page int) ([]*types.Comment, error)
 	GetCommentByID(id string) (*types.Comment, error)
+	GetNumberOfCommentPages(postID string) (int, error)
 	GetReplies(commentID string) ([]*types.Comment, error)
 }
 

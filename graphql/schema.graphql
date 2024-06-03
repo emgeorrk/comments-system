@@ -1,4 +1,3 @@
-# The Post type represents a blog post
 type Post {
     id: ID!
     title: String!
@@ -8,7 +7,6 @@ type Post {
     allowComments: Boolean!
 }
 
-# The Comment type represents a comment on a post
 type Comment {
     id: ID!
     postId: ID!
@@ -18,26 +16,20 @@ type Comment {
     replies: [ID!]!
 }
 
-# Queries for fetching data
 type Query {
     getPosts: [Post!]!
-    # Fetch a post by its ID
     getPostById(id: ID!): Post
-
-    # Fetch comments for a post, with optional pagination
     getComments(postId: ID!, page: Int): [Comment!]!
+    getCommentByID(id: ID!): Comment
+    GetNumberOfCommentPages(postId: ID!): Int!
+    GetReplies(commentId: ID!): [Comment!]!
 }
 
-# Mutations for modifying data
 type Mutation {
-    # Add a new post
-    addPost(title: String!, content: String!): Post!
-
-    # Add a new comment to a post or a parent comment
+    addPost(title: String!, content: String!, allowComments: Boolean): Post!
     addComment(postId: ID!, parentCommentId: ID, content: String!): Comment!
 }
 
-# The schema definition
 schema {
     query: Query
     mutation: Mutation

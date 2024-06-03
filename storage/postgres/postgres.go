@@ -147,7 +147,7 @@ func (store *DataStorePostgres) GetPostByID(id string) (*types.Post, error) {
 	return post, nil
 }
 
-func (store *DataStorePostgres) GetComments(postID string) ([]*types.Comment, error) {
+func (store *DataStorePostgres) GetComments(postID string, page int) ([]*types.Comment, error) {
 	rows, err := store.DB.Query("SELECT id, post_id, parent_comment_id, content, created_at FROM comments WHERE post_id = $1", postID)
 	if err != nil {
 		return nil, err
@@ -155,7 +155,15 @@ func (store *DataStorePostgres) GetComments(postID string) ([]*types.Comment, er
 	defer rows.Close()
 
 	comments := make([]*types.Comment, 0)
-	for rows.Next() {
+	cnt := 0
+	for rows.Next() && cnt < storage.CommentsPageSize*(page-1) {
+		cnt++
+		if err := rows.Scan(); err != nil {
+			return nil, err
+		}
+	}
+
+	for rows.Next() && cnt < storage.CommentsPageSize*page {
 		comment := &types.Comment{}
 		err := rows.Scan(&comment.ID, &comment.PostID, &comment.ParentCommentID, &comment.Content, &comment.CreatedAt)
 		if err != nil {
@@ -205,6 +213,15 @@ func (store *DataStorePostgres) GetCommentByID(id string) (*types.Comment, error
 	}
 
 	return comment, nil
+}
+
+func (store *DataStorePostgres) GetNumberOfCommentPages(postID string) (int, error) {
+	var count int
+	err := store.DB.QueryRow("SELECT COUNT(*) FROM comments WHERE post_id = $1", postID).Scan(&count)
+	if err != nil {
+		return 0, err
+	}
+	return count/storage.CommentsPageSize + 1, nil
 }
 
 func (store *DataStorePostgres) GetReplies(commentID string) ([]*types.Comment, error) {

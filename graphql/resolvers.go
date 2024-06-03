@@ -73,7 +73,12 @@ func getPostByIDResolver(params graphql.ResolveParams) (interface{}, error) {
 
 func getCommentsResolver(params graphql.ResolveParams) (interface{}, error) {
 	postId, _ := params.Args["postId"].(string)
-	comments, err := storage.DataBase.GetComments(postId)
+	page, ok := params.Args["page"].(int)
+	if !ok {
+		page = 0
+	}
+
+	comments, err := storage.DataBase.GetComments(postId, page)
 	if err != nil {
 		return nil, err
 	}
@@ -87,6 +92,15 @@ func getCommentByIDResolver(params graphql.ResolveParams) (interface{}, error) {
 		return nil, err
 	}
 	return comment, nil
+}
+
+func getNumberOfCommentPagesResolver(params graphql.ResolveParams) (interface{}, error) {
+	postID, _ := params.Args["postID"].(string)
+	pages, err := storage.DataBase.GetNumberOfCommentPages(postID)
+	if err != nil {
+		return nil, err
+	}
+	return pages, nil
 }
 
 func getRepliesResolver(params graphql.ResolveParams) (interface{}, error) {

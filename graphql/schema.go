@@ -93,6 +93,15 @@ var QueryType = graphql.NewObject(graphql.ObjectConfig{
 			},
 			Resolve: getCommentByIDResolver,
 		},
+		"getNumberOfCommentPages": &graphql.Field{
+			Type: graphql.NewNonNull(graphql.Int),
+			Args: graphql.FieldConfigArgument{
+				"postId": &graphql.ArgumentConfig{
+					Type: graphql.NewNonNull(graphql.ID),
+				},
+			},
+			Resolve: getNumberOfCommentPagesResolver,
+		},
 		"getReplies": &graphql.Field{
 			Type: graphql.NewList(CommentType),
 			Args: graphql.FieldConfigArgument{

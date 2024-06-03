@@ -85,15 +85,15 @@ func (store *DataStoreInMemory) GetPostByID(id string) (*types.Post, error) {
 	return nil, errors.New("post not found")
 }
 
-func (store *DataStoreInMemory) GetComments(postID string) ([]*types.Comment, error) {
+func (store *DataStoreInMemory) GetComments(postID string, page int) ([]*types.Comment, error) {
 	post, err := store.GetPostByID(postID)
 	if err != nil {
 		return nil, err
 	}
 
 	comments := make([]*types.Comment, 0)
-	for _, commentID := range post.Comments {
-		comment, err := store.GetCommentByID(commentID)
+	for idx := (page - 1) * storage.CommentsPageSize; idx < len(post.Comments) && idx < page*storage.CommentsPageSize; idx++ {
+		comment, err := store.GetCommentByID(post.Comments[idx])
 		if err != nil {
 			return nil, err
 		}
@@ -109,6 +109,10 @@ func (store *DataStoreInMemory) GetCommentByID(id string) (*types.Comment, error
 		return comment, nil
 	}
 	return nil, errors.New("comment not found")
+}
+
+func (store *DataStoreInMemory) GetNumberOfCommentPages(postID string) (int, error) {
+	return len(store.Posts[postID].Comments) / storage.CommentsPageSize, nil
 }
 
 func (store *DataStoreInMemory) GetReplies(commentID string) ([]*types.Comment, error) {
