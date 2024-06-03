@@ -4,18 +4,17 @@ import (
 	"fmt"
 	"github.com/graphql-go/graphql"
 	"github.com/graphql-go/handler"
-	"github.com/joho/godotenv"
 	"graphql-comments/graphql"
 	"graphql-comments/storage"
 	"graphql-comments/storage/in-memory"
 	"graphql-comments/storage/postgres"
 	"log"
 	"net/http"
+	"os"
 )
 
 func main() {
-	envFile, _ := godotenv.Read(".env")
-	flag := envFile["STORAGE_TYPE"]
+	flag := os.Getenv("STORAGE_TYPE")
 
 	switch flag {
 	case "in-memory":
@@ -24,11 +23,11 @@ func main() {
 	case "postgres":
 		log.Println("Using PostgreSQL storage")
 
-		host := envFile["POSTGRES_HOST"]
-		port := envFile["POSTGRES_PORT"]
-		user := envFile["POSTGRES_USER"]
-		password := envFile["POSTGRES_PASSWORD"]
-		dbname := envFile["POSTGRES_DATABASE"]
+		host := os.Getenv("POSTGRES_HOST")
+		port := os.Getenv("POSTGRES_PORT")
+		user := os.Getenv("POSTGRES_USER")
+		password := os.Getenv("POSTGRES_PASSWORD")
+		dbname := os.Getenv("POSTGRES_DATABASE")
 
 		psqlInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 			host, port, user, password, dbname)
