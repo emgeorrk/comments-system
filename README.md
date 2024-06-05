@@ -1,6 +1,6 @@
 # commentsSystem
 ### Запуск
-1. Выбрать режим хранилища в файле `docker-compose.yam`:
+1. Выбрать режим хранилища в файле `docker-compose.yml`:
 ```yaml
 STORAGE_TYPE: postgres # postgres | in-memory
 ```
