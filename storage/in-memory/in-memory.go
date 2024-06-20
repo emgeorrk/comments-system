@@ -4,6 +4,7 @@ import (
 	"errors"
 	"graphql-comments/storage"
 	"graphql-comments/types"
+	"sync"
 	"time"
 )
 
@@ -11,6 +12,7 @@ import (
 type DataStoreInMemory struct {
 	Posts    map[string]*types.Post
 	Comments map[string]*types.Comment
+	mu       sync.Mutex
 }
 
 // NewInMemoryStore создает новый in-memory store
@@ -30,7 +32,11 @@ func (store *DataStoreInMemory) AddPost(title, content string, allowComments boo
 		Comments:      []string{},
 		AllowComments: allowComments,
 	}
+
+	store.mu.Lock()
 	store.Posts[post.ID] = post
+	store.mu.Unlock()
+
 	return post, nil
 }
 
@@ -53,7 +59,9 @@ func (store *DataStoreInMemory) AddComment(postID, parentCommentID string, conte
 		Replies:         []string{},
 	}
 
+	store.mu.Lock()
 	store.Comments[comment.ID] = comment
+	store.mu.Unlock()
 
 	if parentCommentID == "" {
 		// Добавление комментария к посту

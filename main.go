@@ -50,16 +50,13 @@ func main() {
 		Types:    []graphql.Type{gql.PostType, gql.CommentType},
 	})
 
-	// Создаем GraphQL обработчик
 	graphqlHandler := handler.New(&handler.Config{
 		Schema:     &schema,
 		Playground: true,
 	})
 
-	// Устанавливаем обработчик GraphQL
 	http.Handle("/graphql", graphqlHandler)
 
-	// Запускаем сервер на порту 8080
 	log.Println("Server is running at http://localhost:8084/graphql")
 	err := http.ListenAndServe(":8084", nil)
 	if err != nil {
